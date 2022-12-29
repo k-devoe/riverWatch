@@ -8,19 +8,35 @@ import pytz
 import constants
 import pickle
 import mock
+from freezegun import freeze_time
 
 from data_tools import *
 
 test_data_path = 'test_data'
 
-class TestStringMethods(unittest.TestCase):
+class TestStringToDatetime(unittest.TestCase):
 
-    def test_string_to_datetime(self):
+    @freeze_time("2022-6-18 04:12:00")
+    def test_string_to_datetime_same_year(self):
         test_data = '12/18 10:12'
-        test_year = datetime.now(timezone.utc).year
         test_datetime = string_to_datetime(test_data)
-        actual_datetime = datetime(test_year, 12, 18, 10, 12, tzinfo=timezone.utc)
+        actual_datetime = datetime(2022, 12, 18, 10, 12, tzinfo=timezone.utc)
         self.assertEqual(test_datetime, actual_datetime)
+    
+    @freeze_time("2025-3-1 23:12:00")
+    def test_string_to_datetime_same_year_midnight(self):
+        test_data = '4/3 0:00'
+        test_datetime = string_to_datetime(test_data)
+        actual_datetime = datetime(2025, 4, 3, 0, 0, tzinfo=timezone.utc)
+        self.assertEqual(test_datetime, actual_datetime)
+
+    @freeze_time("2022-12-20 14:55:00")
+    def test_string_to_datetime_new_years(self):
+        test_data = '1/8 13:05'
+        test_datetime = string_to_datetime(test_data)
+        actual_datetime = datetime(2023, 1, 8, 13, 5, tzinfo=timezone.utc)
+        self.assertEqual(test_datetime, actual_datetime)
+
 
     def test_web_to_list(self):
         web_page = pickle.loads(open(test_data_path + '/Sample_Tabular_Data_ARGW1_02.html', 'rb').read())
@@ -35,6 +51,7 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(test_list[15], actual_point_15)
         self.assertEqual(test_list[30], actual_point_30)
 
+
 class TestOutsideUserHours(unittest.TestCase):
 
     # Below is an example test pattern:
@@ -47,7 +64,7 @@ class TestOutsideUserHours(unittest.TestCase):
     def test_outside_user_hours_standard_PST_before_begin(self):
 
         user = {}
-        user["timezone"] = "US/Pacific"
+        user["time_zone"] = "US/Pacific"
         user["start_hour"] = 5      
         user["end_hour"] = 20
 
@@ -59,7 +76,7 @@ class TestOutsideUserHours(unittest.TestCase):
     def test_outside_user_hours_standard_PST_between_begin_end(self):
 
         user = {}
-        user["timezone"] = "US/Pacific"
+        user["time_zone"] = "US/Pacific"
         user["start_hour"] = 5      
         user["end_hour"] = 20
 
@@ -71,7 +88,7 @@ class TestOutsideUserHours(unittest.TestCase):
     def test_outside_user_hours_standard_PST_after_end(self):
 
         user = {}
-        user["timezone"] = "US/Pacific"
+        user["time_zone"] = "US/Pacific"
         user["start_hour"] = 5      
         user["end_hour"] = 20
 
@@ -85,7 +102,7 @@ class TestOutsideUserHours(unittest.TestCase):
     def test_outside_user_hours_standard_PDT_before_begin(self):
 
         user = {}
-        user["timezone"] = "US/Pacific"
+        user["time_zone"] = "US/Pacific"
         user["start_hour"] = 5      
         user["end_hour"] = 20
 
@@ -97,7 +114,7 @@ class TestOutsideUserHours(unittest.TestCase):
     def test_outside_user_hours_standard_PDT_between_begin_end(self):
 
         user = {}
-        user["timezone"] = "US/Pacific"
+        user["time_zone"] = "US/Pacific"
         user["start_hour"] = 5      
         user["end_hour"] = 20
 
@@ -109,7 +126,7 @@ class TestOutsideUserHours(unittest.TestCase):
     def test_outside_user_hours_standard_PDT_after_end(self):
 
         user = {}
-        user["timezone"] = "US/Pacific"
+        user["time_zone"] = "US/Pacific"
         user["start_hour"] = 5      
         user["end_hour"] = 20
 
@@ -123,7 +140,7 @@ class TestOutsideUserHours(unittest.TestCase):
     def test_outside_user_hours_inverted_PST_before_end(self):
 
         user = {}
-        user["timezone"] = "US/Pacific"
+        user["time_zone"] = "US/Pacific"
         user["start_hour"] = 20      
         user["end_hour"] = 5
 
@@ -135,7 +152,7 @@ class TestOutsideUserHours(unittest.TestCase):
     def test_outside_user_hours_inverted_PST_between_end_begin(self):
 
         user = {}
-        user["timezone"] = "US/Pacific"
+        user["time_zone"] = "US/Pacific"
         user["start_hour"] = 20      
         user["end_hour"] = 5
 
@@ -147,7 +164,7 @@ class TestOutsideUserHours(unittest.TestCase):
     def test_outside_user_hours_inverted_PST_after_begin(self):
 
         user = {}
-        user["timezone"] = "US/Pacific"
+        user["time_zone"] = "US/Pacific"
         user["start_hour"] = 20      
         user["end_hour"] = 5
 
@@ -161,7 +178,7 @@ class TestOutsideUserHours(unittest.TestCase):
     def test_outside_user_hours_standard_PST_at_start(self):
 
         user = {}
-        user["timezone"] = "US/Pacific"
+        user["time_zone"] = "US/Pacific"
         user["start_hour"] = 5      
         user["end_hour"] = 20
 
@@ -173,7 +190,7 @@ class TestOutsideUserHours(unittest.TestCase):
     def test_outside_user_hours_standard_PST_at_end(self):
             
         user = {}
-        user["timezone"] = "US/Pacific"
+        user["time_zone"] = "US/Pacific"
         user["start_hour"] = 5      
         user["end_hour"] = 20
 

@@ -8,12 +8,21 @@ from twilio.rest import Client
 import pickle
 
 # Function to convert date and time string to datetime object
-def string_to_datetime(date_string):
+def string_to_datetime(prediction_date_string):
+
     # Convert the date to a datetime object
-    date = datetime.strptime(date_string, '%m/%d %H:%M')
-    date = date.replace(year=datetime.now(timezone.utc).year)
-    date = date.replace(tzinfo=timezone.utc)
-    return date
+    prediction_date = datetime.strptime(prediction_date_string, '%m/%d %H:%M')
+
+    # Set the correct year
+    prediction_year = datetime.now(timezone.utc).year
+
+    # Increment the year if the new datapoint is after new years
+    if datetime.now(timezone.utc).month == 12 and prediction_date.month != 12:
+        prediction_year += 1
+
+    prediction_date = prediction_date.replace(year=prediction_year)
+    prediction_date = prediction_date.replace(tzinfo=timezone.utc)
+    return prediction_date
 
 # Function to send a text message
 def send_text_message(alerts, to_number=constants.MY_PHONE_NUMBER, time_zone='US/Pacific'):
