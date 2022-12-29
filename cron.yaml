@@ -1,0 +1,4 @@
+cron:
+- description: "data refresh"
+  url: /data_request
+  schedule: every 3 hours
