@@ -166,18 +166,19 @@ def get_latest_peak(user, datastore_client):
     query.add_filter('user', '=',  user.key)
     query.add_filter('type', '=', 'Peak')
     peaks = list(query.fetch())
+    peaks.sort(key=lambda x: x['date'], reverse=True)
     if len(peaks) > 0:
-        max_peak = peaks[0]
-        for peak in peaks:
-            if peak['height'] > max_peak['height']:
-                max_peak = peak
-        return max_peak
+        return peaks[0]
     else:
         return None
 
 def calc_height_time_diff(current_time, max_point, latest_peak):
 
     # If no previous peak or more than 6 hours in the past then set both time and height difference to max to trigger an alert
+    print("Current time: ", current_time)
+    if latest_peak is not None:
+        print("Latest peak date", latest_peak['date'])
+
     if latest_peak is None or (current_time - latest_peak['date']).days > 0.25:
         return float('inf'), float('inf')
     
@@ -190,10 +191,16 @@ def calc_height_time_diff(current_time, max_point, latest_peak):
 def no_alert_needed(user, current_time, max_point, latest_peak):
 
     height_diff, time_diff = calc_height_time_diff(current_time, max_point, latest_peak)
+
+    print("Height diff: " + str(height_diff))
+    print("Time diff: " + str(time_diff))
     
     # Calculate the minimum time difference for an alert
     min_time_diff = max((max_point["date"] - current_time).days * user["time_slope"], user["time_diff_min"])
     min_height_diff = max(user["height_diff_start"] - (max_point["height"] - user["height_base"]) * user["height_slope"], user["height_diff_min"])
+
+    print("Min time diff: " + str(min_time_diff))
+    print("Min height diff: " + str(min_height_diff))
 
     if height_diff < min_height_diff and time_diff < min_time_diff:
         return True
@@ -224,6 +231,8 @@ def issue_alerts(datastore_client):
             continue     
 
         latest_peak = get_latest_peak(user, datastore_client)
+
+        print("Latest peak: " + str(latest_peak))
 
         if no_alert_needed(user, current_time, max_point, latest_peak):
             continue
