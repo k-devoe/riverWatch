@@ -37,7 +37,7 @@ class TestStringToDatetime(unittest.TestCase):
         actual_datetime = datetime(2023, 1, 8, 13, 5, tzinfo=timezone.utc)
         self.assertEqual(test_datetime, actual_datetime)
 
-
+    @freeze_time("2022-12-20 14:55:00")
     def test_web_to_list(self):
         web_page = pickle.loads(open(test_data_path + '/Sample_Tabular_Data_ARGW1_02.html', 'rb').read())
         test_list = web_to_list(web_page)
@@ -51,6 +51,23 @@ class TestStringToDatetime(unittest.TestCase):
         self.assertEqual(test_list[15], actual_point_15)
         self.assertEqual(test_list[30], actual_point_30)
 
+
+class TestCalcHeightTimeDiff(unittest.TestCase):
+
+
+    def test_calc_height_time_diff_time_forward(self):
+        current_time = datetime(2022, 6, 18, 12, 30, tzinfo=timezone.utc)
+        max_point = {}
+        max_point['date'] = datetime(2022, 6, 20, 18, 30, tzinfo=timezone.utc)
+        max_point['height'] = 4.69
+        latest_peak = {}
+        latest_peak['date'] = datetime(2022, 6, 22, 20, 15, tzinfo=timezone.utc)
+        latest_peak['height'] = 4.69
+
+        height_diff, time_diff = calc_height_time_diff(current_time, max_point, latest_peak)
+
+        self.assertEqual(round(height_diff, 2), 0)
+        self.assertEqual(round(time_diff, 2), 2.07)
 
 class TestOutsideUserHours(unittest.TestCase):
 

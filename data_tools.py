@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 import requests
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import constants
 import pytz
 from google.cloud import datastore
@@ -182,7 +182,7 @@ def calc_height_time_diff(current_time, max_point, latest_peak):
         return float('inf'), float('inf')
     
     # Calculate the time and height difference 
-    time_diff = (latest_peak['date'] - max_point["date"]).days
+    time_diff = (latest_peak['date'] - max_point["date"]).total_seconds() / timedelta(days=1).total_seconds()
     height_diff = max_point['height'] - latest_peak['height']
 
     return height_diff, time_diff
