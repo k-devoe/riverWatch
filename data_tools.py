@@ -114,7 +114,7 @@ def get_max_point(datastore_client):
     return max_point
 
 
-def create_alert(user, max_height, datastore_client):
+def create_alert(user, max_height, datastore_client, current_time):
     # Create a key
     key = datastore_client.key(constants.ALERTS)
 
@@ -126,6 +126,7 @@ def create_alert(user, max_height, datastore_client):
     peak['date'] = max_height['date']
     peak['height'] = max_height['height']
     peak['type'] = 'Peak'
+    peak['issued_date'] = current_time
 
     # Save the entity
     datastore_client.put(peak)
@@ -166,7 +167,7 @@ def get_latest_peak(user, datastore_client):
     query.add_filter('user', '=',  user.key)
     query.add_filter('type', '=', 'Peak')
     peaks = list(query.fetch())
-    peaks.sort(key=lambda x: x['date'], reverse=True)
+    peaks.sort(key=lambda x: x['issued_date'], reverse=True)
     if len(peaks) > 0:
         return peaks[0]
     else:
@@ -237,7 +238,7 @@ def issue_alerts(datastore_client):
         if no_alert_needed(user, current_time, max_point, latest_peak):
             continue
 
-        peak = create_alert(user, max_point, datastore_client)
+        peak = create_alert(user, max_point, datastore_client, current_time)
 
         send_text_message([peak], user['phone_number'], user['time_zone'])
 
